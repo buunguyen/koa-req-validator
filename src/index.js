@@ -1,14 +1,5 @@
 import validator from 'validator'
 
-/**
- * Usage: validate({
- *  'field1': [check, check(arg1, arg2), message],
- *  'field2:scope1:scope2': [check, check(arg1, arg2), message]
- * })
- *
- * check: required|isRequired or any method supported by chriso/validator.js
- * scope: one of 'query', 'body' and 'params'. If not specified, search all.
- */
 const REGEXP = /(.*)\((.*)\)/
 const SCOPES = ['query', 'body', 'params']
 

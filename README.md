@@ -64,6 +64,15 @@ import validate from 'koa-req-validator'
 router.post(path, convert(validate(opts)), ...)
 ```
 
+You can also create a helper function to facilitate reuse:
+
+```js
+import convert from 'koa-convert'
+import _validate from 'koa-req-validator'
+
+const validate = (...args) => convert(_validate(...args))
+```
+
 __Route decorators__
 
 You can combine this middleware with [route decorators](https://github.com/buunguyen/route-decorators), for example:
