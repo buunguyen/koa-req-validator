@@ -1,0 +1,46 @@
+{
+  "name": "koa-req-validator",
+  "version": "0.1.0",
+  "description": "Koa middleware to validate request parameters",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublish": "rimraf lib && babel src --out-dir lib",
+    "test": "mocha --compilers js:babel-register 'test/*.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buunguyen/koa-req-validator.git"
+  },
+  "keywords": [
+    "koa",
+    "validate",
+    "validation",
+    "validator",
+    "request",
+    "params",
+    "parameters"
+  ],
+  "author": "Buu Nguyen <buunguyen@gmail.com> (https://github.com/buunguyen)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/buunguyen/koa-req-validator/issues"
+  },
+  "homepage": "https://github.com/buunguyen/koa-req-validator",
+  "devDependencies": {
+    "babel": "^6.3.26",
+    "babel-cli": "^6.3.17",
+    "babel-plugin-syntax-async-functions": "^6.3.13",
+    "babel-plugin-transform-regenerator": "^6.3.26",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015-node4": "^2.0.2",
+    "babel-register": "^6.3.13",
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4",
+    "proxyquire": "^1.7.3",
+    "rimraf": "^2.4.4",
+    "sinon": "^1.17.2"
+  },
+  "dependencies": {
+    "validator": "^4.5.0"
+  }
+}
