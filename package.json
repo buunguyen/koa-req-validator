@@ -38,7 +38,8 @@
     "mocha": "^2.3.4",
     "proxyquire": "^1.7.3",
     "rimraf": "^2.4.4",
-    "sinon": "^1.17.2"
+    "sinon": "^1.17.2",
+    "validator": "^4.5.0"
   },
   "peerDependencies": {
     "validator": "^4.5.0"

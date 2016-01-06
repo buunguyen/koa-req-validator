@@ -86,6 +86,7 @@ export default class extends Ctrl {
   async register(ctx, next) {
     ...
   }
+}
 ```
 
 ### Test
