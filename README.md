@@ -52,7 +52,7 @@ validate({
 ```
 __Koa 2 Support__
 
-To use the middleware with [Koa 2](https://github.com/koajs/koa/tree/v2.x), you must first convert it to a Koa 2 middleware using (koa-convert)[https://github.com/gyson/koa-convert].
+To use the middleware with [Koa 2](https://github.com/koajs/koa/tree/v2.x), you must first convert it to a Koa 2 middleware using [koa-convert](https://github.com/gyson/koa-convert).
 
 ```js
 import convert from 'koa-convert'
