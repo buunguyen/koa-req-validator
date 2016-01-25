@@ -1,7 +1,7 @@
 import validator from 'validator'
 
 const REGEXP = /(.*)\((.*)\)/
-const SCOPES = ['query', 'body', 'params']
+const SCOPES = ['params', 'query', 'body']
 
 export default function validate(rules) {
   return function *(next) {
@@ -69,11 +69,11 @@ export default function validate(rules) {
         throw new Error(`Invalid scope, must be one of ${SCOPES.join(', ')}`)
       }
 
-      const value = scope === 'query'
-        ? ctx.request.query[name]
-        : scope === 'body'
-        ? ctx.request.body[name]
-        : ctx.params[name]
+      const value = scope === 'params'
+        ? ctx.params[name]
+        : scope === 'query'
+          ? ctx.request.query[name]
+          : (ctx.request.body && ctx.request.body[name])
 
       if (value != null) {
         return value
