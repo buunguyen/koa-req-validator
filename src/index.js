@@ -82,19 +82,13 @@ export default function validate(rules) {
   }
 
   function getValueByPath(obj, path) {
-    return !!~path.indexOf(".")
-            ? path
-              .split(".")
-              .reduce(
-                (element, property) =>
-                  isObject(element) ? element[property] : undefined,
-                obj
-              )
-            : obj[path];
+    return path.indexOf('.') === -1
+            ? obj[path]
+            : path.split('.').reduce((res, prop) => isObject(res) && res[prop], obj)
   }
 
   function isObject(obj) {
-    return typeof obj === 'object' && obj !== null && !Array.isArray(obj)
+    return Object.prototype.toString.call(obj) === '[object Object]'
   }
 
   function isNullOrEmpty(str) {
