@@ -14,6 +14,15 @@ router.post('/users', validate({
      ...
   }
 )
+
+// With nested object
+router.post('/users', validate({
+    'bio.name': ['require', 'Name is required'],
+    'bio.age': ['require', 'isInt', 'Age must be a number']
+  }), function *(next) {
+    ...
+  }
+)
 ```
 
 ### Usage

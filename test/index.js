@@ -77,4 +77,29 @@ describe('validate', () => {
       assert.equal(err.message, 'message1')
     }
   })
+
+  it('should invoke checks for nested path', async () => {
+    const mock = sinon.mock(validator)
+    mock.expects('check1').withArgs('value').twice().returns(true)
+    mock.expects('check2').withArgs('value', 1, '2').twice().returns(true)
+
+    const middleware = validate({
+      'field1.level1': ['check1', 'check2(1, "2")', 'message1'],
+      'field2.level1.level2': ['check1', 'check2(1, "2")', 'message2']
+    })
+
+    await middleware.call(createContext({
+      params: {
+        field1: {
+          level1: 'value'
+        },
+        field2: {
+          level1: {
+            level2: 'value'
+          }
+        }
+      }
+    })).next()
+    mock.verify()
+  })
 })
