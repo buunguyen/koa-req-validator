@@ -82,7 +82,15 @@ export default function validate(rules) {
   }
 
   function getValueByPath(obj, path) {
-    return path.split('.').reduce((ele, p) => isObject(ele) ? ele[p] : ele, obj)
+    return !!~path.indexOf(".")
+            ? path
+              .split(".")
+              .reduce(
+                (element, property) =>
+                  isObject(element) ? element[property] : undefined,
+                obj
+              )
+            : obj[path];
   }
 
   function isObject(obj) {
