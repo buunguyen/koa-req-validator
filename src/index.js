@@ -70,15 +70,23 @@ export default function validate(rules) {
       }
 
       const value = scope === 'params'
-        ? ctx.params[name]
+        ? getValueByPath(ctx.params, name)
         : scope === 'query'
-          ? ctx.request.query[name]
-          : (ctx.request.body && ctx.request.body[name])
+          ? getValueByPath(ctx.request.query, name)
+          : (ctx.request.body && getValueByPath(ctx.request.body, name))
 
       if (value != null) {
         return value
       }
     }
+  }
+
+  function getValueByPath(obj, path) {
+    return path.split('.').reduce((ele, p) => isObject(ele) ? ele[p] : ele, obj)
+  }
+
+  function isObject(obj) {
+    return typeof obj === 'object' && obj !== null && !Array.isArray(obj)
   }
 
   function isNullOrEmpty(str) {

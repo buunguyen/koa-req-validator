@@ -77,4 +77,57 @@ describe('validate', () => {
       assert.equal(err.message, 'message1')
     }
   })
+
+  it('should invoke checks with correct path', async () => {
+    const mock = sinon.mock(validator)
+    mock.expects('check1').withArgs('value').once().returns(true)
+    mock.expects('check2').withArgs('value', 1, '2').once().returns(true)
+
+    const middleware = validate({
+      'field.nested': ['check1', 'check2(1, "2")', 'message']
+    })
+
+    await middleware.call(createContext({
+      params: {
+        field: {nested: 'value'}
+      }
+    })).next()
+    mock.verify()
+  })
+
+  it('should throw error if value of object params is invalid ', async () => {
+    const middleware = validate({
+      'field.nested': ['require', 'message']
+    })
+    try {
+       await middleware.call(createContext({
+        params: {
+          field: {nested: null}
+        }
+      })).next()
+
+      assert.fail()
+    } catch (err) {
+      assert.equal(err.message, 'message')
+      assert.equal(err.status, 400)
+    }
+  })
+
+  it('should search only in the specified scopes with obj param', async () => {
+    const middleware = validate({
+      'field.nested:query:params': ['require', 'message1']
+    })
+
+    try {
+      await middleware.call(createContext({
+        body: {
+          field: {nested: 'value'}
+        }
+      })).next()
+      assert.fail()
+    }
+    catch (err) {
+      assert.equal(err.message, 'message1')
+    }
+  })
 })
