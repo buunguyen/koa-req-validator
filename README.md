@@ -15,10 +15,10 @@ router.post('/users', validate({
   }
 )
 
-// With nested object
+// To validate properties of an object
 router.post('/users', validate({
-    'bio.name': ['require', 'Name is required'],
-    'bio.age': ['require', 'isInt', 'Age must be a number']
+    'user.name': ['require', 'Name is required'],
+    'user.address.state': ['require', 'State is required']
   }), function *(next) {
     ...
   }
@@ -39,7 +39,7 @@ __Options__
 
 `opts` is an object specifying the fields and their corresponding validation rules.
 
-* Each key is a field name with optional search scopes: `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
+* Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
 
 * Value is a rule array with the final element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator. Arguments can be provided, but make sure the omit the `str` argument (the first one) as it is automatically supplied by the middleware.
 
