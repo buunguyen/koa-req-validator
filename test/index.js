@@ -42,20 +42,24 @@ describe('validate', () => {
   it('should throw if require|isRequired check exists but value is null or empty', async () => {
     const middleware = validate({
       field1: ['require', 'message1'],
-      field2: ['isRequired', 'message2']
+      field2: ['isRequired', 'message2'],
+      'field3.level1': ['require', 'message3']
     })
 
     try {
       await middleware.call(createContext({
-        params: {
+        body: {
           field1: null,
-          field2: ''
+          field2: '',
+          field3: {
+            level1: null
+          }
         }
       })).next()
       assert.fail()
     }
     catch (err) {
-      assert.equal(err.message, 'message1; message2')
+      assert.equal(err.message, 'message1; message2; message3')
       assert.equal(err.status, 400)
     }
   })
