@@ -31,11 +31,11 @@ describe('validate', () => {
       field: ['check1', 'check2(1, "2")', 'message']
     })
 
-    await middleware.call(createContext({
+    await middleware(createContext({
       params: {
         field: 'value'
       }
-    })).next()
+    }))
     mock.verify()
   })
 
@@ -47,7 +47,7 @@ describe('validate', () => {
     })
 
     try {
-      await middleware.call(createContext({
+      await middleware(createContext({
         body: {
           field1: null,
           field2: '',
@@ -55,7 +55,7 @@ describe('validate', () => {
             level1: null
           }
         }
-      })).next()
+      }))
       assert.fail()
     }
     catch (err) {
@@ -70,11 +70,11 @@ describe('validate', () => {
     })
 
     try {
-      await middleware.call(createContext({
+      await middleware(createContext({
         body: {
           field1: 'value'
         }
-      })).next()
+      }))
       assert.fail()
     }
     catch (err) {
@@ -92,7 +92,7 @@ describe('validate', () => {
       'field2.level1.level2': ['check1', 'check2(1, "2")', 'message2']
     })
 
-    await middleware.call(createContext({
+    await middleware(createContext({
       params: {
         field1: {
           level1: 'value'
@@ -103,7 +103,7 @@ describe('validate', () => {
           }
         }
       }
-    })).next()
+    }))
     mock.verify()
   })
 })
