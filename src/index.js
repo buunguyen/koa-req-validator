@@ -4,33 +4,33 @@ const REGEXP = /(.*)\((.*)\)/
 const SCOPES = ['params', 'query', 'body']
 
 export default function validate(rules) {
-  return function *(next) {
-    const ctx = this
+  return async (ctx, next) => {
     const errors = []
 
-    Object.keys(rules).forEach((field) => {
+    for (let field of Object.keys(rules)) {
       const fieldRules = rules[field]
       const fieldValue = getFieldValue(ctx, field)
       const message = fieldRules[fieldRules.length - 1]
       const checks = fieldRules.slice(0, -1)
 
       for (let check of checks) {
-        if (!runCheck(check, fieldValue)) {
+        const isValid = await runCheck(check, fieldValue)
+        if (!isValid) {
           errors.push(message)
           break
         }
       }
-    })
+    }
 
     if (errors.length) {
       ctx.throw(errors.join('; '), 400)
     }
     else if (next) {
-      yield next
+      await next()
     }
   }
 
-  function runCheck(check, value) {
+  async function runCheck(check, value) {
     const args = [value]
     const match = check.match(REGEXP)
 
@@ -54,7 +54,7 @@ export default function validate(rules) {
       throw new Error(`Rule '${check}' does not exist`)
     }
 
-    return validator[check](...args)
+    return await validator[check](...args)
   }
 
   function getFieldValue(ctx, field) {
@@ -94,4 +94,5 @@ export default function validate(rules) {
   function isNullOrEmpty(str) {
     return str == null || str === '' || (typeof str === 'string' && str.trim() === '')
   }
+
 }

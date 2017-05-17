@@ -6,7 +6,10 @@ import proxyquire from 'proxyquire'
 describe('validate', () => {
   const validator = {
     check1() {},
-    check2() {}
+    check2() {},
+    async check3(v, arg) {
+      return await new Promise(resolve => setTimeout(() => resolve(arg === 'true')), 2000)
+    }
   }
 
   const validate = proxyquire('../src', {validator}).default
@@ -31,11 +34,11 @@ describe('validate', () => {
       field: ['check1', 'check2(1, "2")', 'message']
     })
 
-    await middleware.call(createContext({
+    await middleware(createContext({
       params: {
         field: 'value'
       }
-    })).next()
+    }))
     mock.verify()
   })
 
@@ -47,7 +50,7 @@ describe('validate', () => {
     })
 
     try {
-      await middleware.call(createContext({
+      await middleware(createContext({
         body: {
           field1: null,
           field2: '',
@@ -55,11 +58,34 @@ describe('validate', () => {
             level1: null
           }
         }
-      })).next()
+      }))
       assert.fail()
     }
     catch (err) {
       assert.equal(err.message, 'message1; message2; message3')
+      assert.equal(err.status, 400)
+    }
+  })
+
+  it('should throw if async validator check invalid value', async () => {
+    const middleware = validate({
+      field1: ['check3("true")', 'no message'],
+      field2: ['check3("false")', 'message2'],
+      field3: ['check3("true")','isLength(0,3)', 'message3']
+    })
+
+    try {
+      await middleware(createContext({
+        body: {
+          field1: 'value1',
+          field2: 'value2',
+          field3: 'longvalue'
+        }
+      }))
+      assert.fail()
+    }
+    catch (err) {
+      assert.equal(err.message, 'message2; message3')
       assert.equal(err.status, 400)
     }
   })
@@ -70,11 +96,11 @@ describe('validate', () => {
     })
 
     try {
-      await middleware.call(createContext({
+      await middleware(createContext({
         body: {
           field1: 'value'
         }
-      })).next()
+      }))
       assert.fail()
     }
     catch (err) {
@@ -92,7 +118,7 @@ describe('validate', () => {
       'field2.level1.level2': ['check1', 'check2(1, "2")', 'message2']
     })
 
-    await middleware.call(createContext({
+    await middleware(createContext({
       params: {
         field1: {
           level1: 'value'
@@ -103,7 +129,7 @@ describe('validate', () => {
           }
         }
       }
-    })).next()
+    }))
     mock.verify()
   })
 })
