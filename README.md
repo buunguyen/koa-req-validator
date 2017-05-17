@@ -48,6 +48,11 @@ If a field has no value, it won't be validated. To make a field required, add th
 __Examples__
 
 ```js
+import validator from 'validator'
+
+// add custom validator
+validator['isUserNameNew'] = async (username) => await db.Users.isNew(username)
+
 validate({
   // Only find and validate email from request.body
   'email:body': ['require', 'isEmail', 'Invalid email address'],
@@ -61,10 +66,6 @@ validate({
   // Check user name exist
   'username': ['isUserNameNew', 'Username already exists']
 })
-
-async function isUserNameNew(username) {
-    return await db.Users.isNew(username) // return a Promise
-}
 ```
 
 __Route decorators__
