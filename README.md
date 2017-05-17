@@ -41,7 +41,7 @@ __Options__
 
 * Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
 
-* Value is a rule array with the final element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator. Arguments can be provided, but make sure the omit the `str` argument (the first one) as it is automatically supplied by the middleware.
+* Value is a rule array with the final element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator or a custom sync/async validator `fn(value, ...args)`. Arguments can be provided, but make sure the omit the `str` argument (the first one) as it is automatically supplied by the middleware.
 
 If a field has no value, it won't be validated. To make a field required, add the special `required` rule (or its alias `isRequired`). If there are validation failures, the middleware invokes `ctx.throw()` with status code 400 and all error messages.
 
@@ -56,27 +56,15 @@ validate({
   'password': ['require', 'Password is required'],
 
   // Find and validate birthday from request.query or request.body
-  'birthday:query:body': ['isDate', 'Invalid birthday']
+  'birthday:query:body': ['isDate', 'Invalid birthday'],
+
+  // Check user name exist
+  'username': ['isUserNameNew', 'Username already exists']
 })
-```
-__Koa 2 Support__
 
-To use the middleware with [Koa 2](https://github.com/koajs/koa/tree/v2.x), you must first convert it to a Koa 2 middleware using [koa-convert](https://github.com/gyson/koa-convert).
-
-```js
-import convert from 'koa-convert'
-import validate from 'koa-req-validator'
-
-router.post(path, convert(validate(opts)), ...)
-```
-
-You can also create a helper function to reuse in many places:
-
-```js
-import convert from 'koa-convert'
-import _validate from 'koa-req-validator'
-
-const validate = (...args) => convert(_validate(...args))
+async function isUserNameNew(username) {
+    return await db.Users.isNew(username) // return a Promise
+}
 ```
 
 __Route decorators__
@@ -84,14 +72,13 @@ __Route decorators__
 You can combine this middleware with [route decorators](https://github.com/buunguyen/route-decorators), for example:
 
 ```js
-import convert from 'koa-convert'
 import validate from 'koa-req-validator'
 import bodyParser from 'koa-bodyparser'
 
 @controller('/users', convert(bodyParser()))
 export default class extends Ctrl {
 
-  @post('', convert(validate(opts)))
+  @post('', validate(opts))
   async register(ctx, next) {
     ...
   }
