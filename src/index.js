@@ -1,6 +1,7 @@
 import validator from 'validator'
 
-const REGEXP = /(.*)\((.*)\)/
+const FN_REGEXP = /(.*)\((.*)\)/
+const ARGS_REGEXP = /(?:[^,"']+|"[^"]*?"|'[^']*?')+/g
 const SCOPES = ['params', 'query', 'body']
 
 export default function validate(rules) {
@@ -32,11 +33,11 @@ export default function validate(rules) {
 
   async function runCheck(check, value) {
     const args = [value]
-    const match = check.match(REGEXP)
+    const match = check.match(FN_REGEXP)
 
     if (match) {
       check = match[1]
-      match[2].split(',')
+      match[2].match(ARGS_REGEXP)
         .map((v) => JSON.parse(v))
         .forEach((v) => args.push(v))
     }
