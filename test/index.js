@@ -41,6 +41,42 @@ describe('validate', () => {
     }))
     mock.verify()
   })
+  
+  it('should deal with regexp separator', async () => {
+    const mock = sinon.mock(validator)
+    mock.expects('check1').withArgs('value', 1, '^[a-z]{0,6}$', '3', 4).once().returns(true)
+
+    const middleware = validate({field: ['check1(1, "^[a-z]{0,6}$", "3", 4)', 'message']})
+
+    await middleware(createContext({params: {field: 'value'}}))
+    mock.verify()
+  })
+  
+
+  it('should invoke checks for nested path', async () => {
+    const mock = sinon.mock(validator)
+    mock.expects('check1').withArgs('value').twice().returns(true)
+    mock.expects('check2').withArgs('value', 1, '2').twice().returns(true)
+
+    const middleware = validate({
+      'field1.level1': ['check1', 'check2(1, "2")', 'message1'],
+      'field2.level1.level2': ['check1', 'check2(1, "2")', 'message2']
+    })
+
+    await middleware(createContext({
+      params: {
+        field1: {
+          level1: 'value'
+        },
+        field2: {
+          level1: {
+            level2: 'value'
+          }
+        }
+      }
+    }))
+    mock.verify()
+  })
 
   it('should throw if require|isRequired check exists but value is null or empty', async () => {
     const middleware = validate({
@@ -106,30 +142,5 @@ describe('validate', () => {
     catch (err) {
       assert.equal(err.message, 'message1')
     }
-  })
-
-  it('should invoke checks for nested path', async () => {
-    const mock = sinon.mock(validator)
-    mock.expects('check1').withArgs('value').twice().returns(true)
-    mock.expects('check2').withArgs('value', 1, '2').twice().returns(true)
-
-    const middleware = validate({
-      'field1.level1': ['check1', 'check2(1, "2")', 'message1'],
-      'field2.level1.level2': ['check1', 'check2(1, "2")', 'message2']
-    })
-
-    await middleware(createContext({
-      params: {
-        field1: {
-          level1: 'value'
-        },
-        field2: {
-          level1: {
-            level2: 'value'
-          }
-        }
-      }
-    }))
-    mock.verify()
   })
 })
