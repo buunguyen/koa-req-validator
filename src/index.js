@@ -2,7 +2,7 @@ import validator from 'validator'
 
 const FN_REGEXP = /(.*)\((.*)\)/
 const ARGS_REGEXP = /(?:[^,"']+|"[^"]*?"|'[^']*?')+/g
-const SCOPES = ['params', 'query', 'body']
+const SCOPES = ['params', 'query', 'body', 'header', 'headers']
 
 export default function validate(rules) {
   return async (ctx, next) => {
@@ -72,8 +72,7 @@ export default function validate(rules) {
 
       const value = scope === 'params'
         ? getValueByPath(ctx.params, name)
-        : scope === 'query'
-          ? getValueByPath(ctx.request.query, name)
+        : ctx.request[`${scope}`] ? getValueByPath(ctx.request[`${scope}`], name)
           : (ctx.request.body && getValueByPath(ctx.request.body, name))
 
       if (value != null) {
