@@ -2,7 +2,7 @@ import validator from 'validator'
 
 const FN_REGEXP = /(.*)\((.*)\)/
 const ARGS_REGEXP = /(?:[^,"']+|"[^"]*?"|'[^']*?')+/g
-const SCOPES = ['params', 'query', 'body']
+const SCOPES = ['params', 'query', 'body', 'header', 'headers']
 
 export default function validate(rules) {
   return async (ctx, next) => {
@@ -59,7 +59,7 @@ export default function validate(rules) {
   }
 
   function getFieldValue(ctx, field) {
-    let [name, ...scopes] = field.split(':')
+    let [path, ...scopes] = field.split(':')
 
     if (scopes.length === 0) {
       scopes = SCOPES
@@ -70,11 +70,9 @@ export default function validate(rules) {
         throw new Error(`Invalid scope, must be one of ${SCOPES.join(', ')}`)
       }
 
-      const value = scope === 'params'
-        ? getValueByPath(ctx.params, name)
-        : scope === 'query'
-          ? getValueByPath(ctx.request.query, name)
-          : (ctx.request.body && getValueByPath(ctx.request.body, name))
+      const data = ctx[scope] || ctx.request[scope]
+
+      const value = getValueAtPath(data, path)
 
       if (value != null) {
         return value
@@ -82,7 +80,7 @@ export default function validate(rules) {
     }
   }
 
-  function getValueByPath(obj, path) {
+  function getValueAtPath(obj, path) {
     return path.indexOf('.') === -1
             ? obj[path]
             : path.split('.').reduce((res, prop) => isObject(res) ? res[prop] : undefined, obj)

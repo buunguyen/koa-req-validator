@@ -13,10 +13,10 @@ describe('validate', () => {
   }
 
   const validate = proxyquire('../src', {validator}).default
-  const createContext = ({query = {}, body = {}, params = {}}) => {
+  const createContext = ({query = {}, body = {}, params = {}, header = {}, headers = {}}) => {
     return {
       params,
-      request: {query, body},
+      request: {query, body, header, headers},
       throw(msg, status) {
         const error = new Error(msg)
         error.status = status
@@ -41,7 +41,7 @@ describe('validate', () => {
     }))
     mock.verify()
   })
-  
+
   it('should deal with regexp separator', async () => {
     const mock = sinon.mock(validator)
     mock.expects('check1').withArgs('value', 1, '^[a-z]{0,6}$', '3', 4).once().returns(true)
@@ -51,7 +51,6 @@ describe('validate', () => {
     await middleware(createContext({params: {field: 'value'}}))
     mock.verify()
   })
-  
 
   it('should invoke checks for nested path', async () => {
     const mock = sinon.mock(validator)
@@ -128,7 +127,7 @@ describe('validate', () => {
 
   it('should search only in the specified scopes', async () => {
     const middleware = validate({
-      'field1:query:params': ['require', 'message1']
+      'field1:query:params:header:headers': ['require', 'message1']
     })
 
     try {
