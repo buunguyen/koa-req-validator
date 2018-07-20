@@ -39,7 +39,7 @@ __Options__
 
 `opts` is an object specifying the fields and their corresponding validation rules.
 
-* Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `header`, `headers`, `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
+* Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `header` (alias `headers`), `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
 
 * Value is a rule array with the final element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator or a custom sync/async validator `fn(value, ...args)`. Arguments can be provided, but make sure the omit the `str` argument (the first one) as it is automatically supplied by the middleware.
 
