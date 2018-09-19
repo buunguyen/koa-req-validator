@@ -1,6 +1,6 @@
 {
   "name": "koa-req-validator",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Koa middleware to validate request parameters",
   "main": "lib/index.js",
   "scripts": {
