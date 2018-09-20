@@ -52,9 +52,9 @@ import validator from 'validator'
 
 // Add custom validator
 validator['validateUserName'] = async (username, group, ctx) => {
-  // 1st arg: username is the value to be validate
-  // 2nd...2nd to last args: group is the extra value passed to isNewUserName
-  // last arg: ctx Koa context
+  // 1st arg (username): the value to be validate
+  // 2nd...2nd-to-last args (group): the extra value passed to validateUserName, i.e. "devs"
+  // last arg (ctx): the Koa context
   return boolean | Promise<boolean>
 }
 
@@ -69,7 +69,7 @@ validate({
   'birthday:query:body': ['isDate', 'Invalid birthday'],
 
   // Find username in all scopes
-  'username': ['validateUserName', 'Invalid username'],
+  'username': ['validateUserName("devs")', 'Invalid username'],
 })
 ```
 
