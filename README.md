@@ -37,40 +37,39 @@ router.post(path, validate(opts), ...)
 
 __Options__
 
-`opts` is an object specifying the fields and their corresponding validation rules.
+`opts` is an object specifying the fields and their validation rules.
 
-* Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `header` (alias `headers`), `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, all scopes are searched.
+* Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `header` (alias `headers`), `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, **all** scopes are searched.
 
-* Value is a rule array with the final element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator or a custom sync/async validator `fn(value, ...args)`. Arguments can be provided, but make sure the omit the `str` argument (the first one) as it is automatically supplied by the middleware. In case the rule method needs to access info from the request, it can access the [koa context](https://github.com/koajs/koa/blob/master/docs/api/context.md) which is automatically provided in last position in arguments (see sample code below).
+* Value is a rule array with the last element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator or a custom validator `function(value: *, ...args: Array<*>, ctx: KoaContext): Promise<boolean>|boolean`. `value` is the value to be validated from one of the scopes. `args` are additional arguments that can be declared for the validator (see the `isLength` example above). `ctx` is the [Koa context](https://github.com/koajs/koa/blob/master/docs/api/context.md).
 
-If a field has no value, it won't be validated. To make a field required, add the special `required` rule (or its alias `isRequired`). If there are validation failures, the middleware invokes `ctx.throw()` with status code 400 and all error messages.
+If a field has no value, it won't be validated. To make a field required, add the special `required` rule (or its alias `isRequired`). If there are validation failures, the middleware invokes `ctx.throw()` with status code `400` and all error messages.
 
 __Examples__
 
 ```js
 import validator from 'validator'
 
-// add custom validator
-validator['isUserNameNew'] = async (username) => await db.Users.isNew(username)
-
-// add custom validator which needs the request data
-validator['isGroupNameUnique'] = async (groupName, ctx) => await db.Groups.isNameUnique(groupName, ctx.request.headers['x-user-id'])
+// Add custom validator
+validator['validateUserName'] = async (username, group, ctx) => {
+  // 1st arg: username is the value to be validate
+  // 2nd...2nd to last args: group is the extra value passed to isNewUserName
+  // last arg: ctx Koa context
+  return boolean | Promise<boolean>
+}
 
 validate({
-  // Only find and validate email from request.body
+  // Find email from request.body and validate
   'email:body': ['require', 'isEmail', 'Invalid email address'],
 
   // Find password in all scopes, use the first non-empty value to validate
   'password': ['require', 'Password is required'],
 
-  // Find and validate birthday from request.query or request.body
+  // Find birthday from request.query or request.body
   'birthday:query:body': ['isDate', 'Invalid birthday'],
 
-  // Check user name exist
-  'username': ['isUserNameNew', 'Username already exists'],
-
-  // Check group name unique
-  'groupName': ['isGroupNameUnique', 'Group name already exists under your account']
+  // Find username in all scopes
+  'username': ['validateUserName', 'Invalid username'],
 })
 ```
 

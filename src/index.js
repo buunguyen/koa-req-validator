@@ -42,7 +42,7 @@ export default function validate(rules) {
         .forEach((v) => args.push(v))
     }
 
-    // Treats null-empthy specially: ok unless require or isRequired is specified
+    // Treats null/empty specially: ok unless `require` or `isRequired` is specified
     const hasNoValue = isNullOrEmpty(value)
     if (~['require', 'isRequired'].indexOf(check)) {
       return !hasNoValue
@@ -55,7 +55,7 @@ export default function validate(rules) {
       throw new Error(`Rule '${check}' does not exist`)
     }
 
-    // Enhances validation capability by giving request context
+    // Add the Koa ctx as the last argument
     args.push(ctx)
 
     return await validator[check](...args)
