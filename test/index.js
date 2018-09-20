@@ -142,4 +142,28 @@ describe('validate', () => {
       assert.equal(err.message, 'message1')
     }
   })
+
+  it('should transfer the koa context at last parameter', async () => {
+    let koaContext = createContext({
+      params: {
+        field: 'hello'
+      }
+    })
+
+    // Convention from koa
+    // See https://github.com/koajs/koa/blob/master/docs/api/context.md#ctxstate
+    koaContext.state = {user: {id: 10}}
+
+    const mock = sinon.mock(validator)
+    mock.expects('check1').withExactArgs('hello', koaContext).once().returns(true)
+    mock.expects('check2').withExactArgs('hello', 1, koaContext).once().returns(true)
+
+    const middleware = validate({
+      field: ['check1', 'check2(1)', 'message']
+    })
+
+    await middleware(koaContext)
+
+    mock.verify()
+  })
 })

@@ -15,7 +15,7 @@ export default function validate(rules) {
       const checks = fieldRules.slice(0, -1)
 
       for (let check of checks) {
-        const isValid = await runCheck(check, fieldValue)
+        const isValid = await runCheck(check, fieldValue, ctx)
         if (!isValid) {
           errors.push(message)
           break
@@ -31,7 +31,7 @@ export default function validate(rules) {
     }
   }
 
-  async function runCheck(check, value) {
+  async function runCheck(check, value, ctx) {
     const args = [value]
     const match = check.match(FN_REGEXP)
 
@@ -54,6 +54,9 @@ export default function validate(rules) {
     if (!validator[check]) {
       throw new Error(`Rule '${check}' does not exist`)
     }
+
+    // Enhances validation capability by giving request context
+    args.push(ctx)
 
     return await validator[check](...args)
   }
