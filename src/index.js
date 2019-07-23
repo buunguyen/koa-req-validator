@@ -4,13 +4,13 @@ const FN_REGEXP = /(.*)\((.*)\)/
 const ARGS_REGEXP = /(?:[^,"']+|"[^"]*?"|'[^']*?')+/g
 const SCOPES = ['params', 'query', 'body', 'header', 'headers']
 
-export default function validate(rules) {
+export default function validate(rules, opts = {}) {
   return async (ctx, next) => {
     const errors = []
 
     for (let field of Object.keys(rules)) {
       const fieldRules = rules[field]
-      const fieldValue = getFieldValue(ctx, field)
+      const fieldValue = getFieldValue(ctx, field, opts)
       const message = fieldRules[fieldRules.length - 1]
       const checks = fieldRules.slice(0, -1)
 
@@ -61,8 +61,9 @@ export default function validate(rules) {
     return await validator[check](...args)
   }
 
-  function getFieldValue(ctx, field) {
-    let [path, ...scopes] = field.split(':')
+  function getFieldValue(ctx, field, opts = {}) {
+    const {searchScopeDisabled} = opts
+    let [path, ...scopes] = searchScopeDisabled ? [field] : field.split(':')
 
     if (scopes.length === 0) {
       scopes = SCOPES

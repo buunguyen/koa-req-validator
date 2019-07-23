@@ -143,6 +143,25 @@ describe('validate', () => {
     }
   })
 
+  it('should disable searching the scopes by colon separator', async () => {
+    const middleware = validate({
+      'prefix:field': ['require', 'message1'],
+    }, {searchScopeDisabled: true})
+
+    try {
+      await middleware(createContext({
+        body: {
+          'prefix': 'value1',
+          'prefix:field': null
+        }
+      }))
+      assert.fail()
+    }
+    catch (err) {
+      assert.equal(err.message, 'message1')
+    }
+  })
+
   it('should transfer the koa context at last parameter', async () => {
     let koaContext = createContext({
       params: {

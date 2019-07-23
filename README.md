@@ -32,18 +32,24 @@ __Basic__
 ```js
 import validate from 'koa-req-validator'
 
-router.post(path, validate(opts), ...)
+router.post(path, validate(rules, opts), ...)
 ```
 
 __Options__
 
-`opts` is an object specifying the fields and their validation rules.
+`rules` is an object specifying the fields and their validation rules.
 
 * Each key is a field name in the post data (e.g. 'name', 'user.name') with optional search scopes: `header` (alias `headers`), `query`, `body` and `params`. Field name and scopes are separated by `:`. If no scope is specified, **all** scopes are searched.
 
 * Value is a rule array with the last element being an error message. A rule can be any of the [supported methods](https://github.com/chriso/validator.js#validators) of node-validator or a custom validator `function(value: *, ...args: Array<*>, ctx: KoaContext): Promise<boolean>|boolean`. `value` is the value to be validated from one of the scopes. `args` are additional arguments that can be declared for the validator (see the `isLength` example above). `ctx` is the [Koa context](https://github.com/koajs/koa/blob/master/docs/api/context.md).
 
 If a field has no value, it won't be validated. To make a field required, add the special `required` rule (or its alias `isRequired`). If there are validation failures, the middleware invokes `ctx.throw()` with status code `400` and all error messages.
+
+`opts` is an object specifying the options. By default, `opts = {}`. At this time we support one option:
+```js
+opts = {searchScopeDisabled: true}
+```
+This will ignore to search scopes that are separated by the `:` separator. The field name will contain `:` and all scopes will be searched.
 
 __Examples__
 
@@ -71,6 +77,11 @@ validate({
   // Find username in all scopes
   'username': ['validateUserName("devs")', 'Invalid username'],
 })
+
+validate({
+  // Find appium:deviceName from all scopes
+  'appium:deviceName': ['require', 'Invalid device name']
+}, {searchScopeDisabled: true})
 ```
 
 __Route decorators__
@@ -84,7 +95,7 @@ import bodyParser from 'koa-bodyparser'
 @controller('/users', convert(bodyParser()))
 export default class extends Ctrl {
 
-  @post('', validate(opts))
+  @post('', validate(rules))
   async register(ctx, next) {
     ...
   }
