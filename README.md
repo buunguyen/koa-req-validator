@@ -45,11 +45,11 @@ __Options__
 
 If a field has no value, it won't be validated. To make a field required, add the special `required` rule (or its alias `isRequired`). If there are validation failures, the middleware invokes `ctx.throw()` with status code `400` and all error messages.
 
-`opts` is an object specifying the options. By default, `opts = {}`. At this time we support one option:
+`opts` is an object specifying the options. At this time we support one option, by default it is:
 ```js
-opts = {searchScopeDisabled: true}
+opts = {searchScopeEnabled: true}
 ```
-This will ignore to search scopes that are separated by the `:` separator. The field name will contain `:` and all scopes will be searched.
+If `searchScopeEnabled` set to `false`, it will ignore to search scopes that are separated by the `:` separator. The field name will contain `:` and all scopes will be searched.
 
 __Examples__
 
@@ -81,7 +81,7 @@ validate({
 validate({
   // Find appium:deviceName from all scopes
   'appium:deviceName': ['require', 'Invalid device name']
-}, {searchScopeDisabled: true})
+}, {searchScopeEnabled: false})
 ```
 
 __Route decorators__

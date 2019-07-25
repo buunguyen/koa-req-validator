@@ -5,12 +5,15 @@ const ARGS_REGEXP = /(?:[^,"']+|"[^"]*?"|'[^']*?')+/g
 const SCOPES = ['params', 'query', 'body', 'header', 'headers']
 
 export default function validate(rules, opts = {}) {
+  const defaultOpts = {searchScopeEnabled: true}
+  const optWithDefault = Object.assign(defaultOpts, opts)
+
   return async (ctx, next) => {
     const errors = []
 
     for (let field of Object.keys(rules)) {
       const fieldRules = rules[field]
-      const fieldValue = getFieldValue(ctx, field, opts)
+      const fieldValue = getFieldValue(ctx, field, optWithDefault)
       const message = fieldRules[fieldRules.length - 1]
       const checks = fieldRules.slice(0, -1)
 
@@ -62,8 +65,8 @@ export default function validate(rules, opts = {}) {
   }
 
   function getFieldValue(ctx, field, opts = {}) {
-    const {searchScopeDisabled} = opts
-    let [path, ...scopes] = searchScopeDisabled ? [field] : field.split(':')
+    const {searchScopeEnabled} = opts
+    let [path, ...scopes] = searchScopeEnabled ? field.split(':') : [field]
 
     if (scopes.length === 0) {
       scopes = SCOPES

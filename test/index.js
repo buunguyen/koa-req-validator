@@ -146,7 +146,7 @@ describe('validate', () => {
   it('should disable searching the scopes by colon separator', async () => {
     const middleware = validate({
       'prefix:field': ['require', 'message1'],
-    }, {searchScopeDisabled: true})
+    }, {searchScopeEnabled: false})
 
     try {
       await middleware(createContext({
